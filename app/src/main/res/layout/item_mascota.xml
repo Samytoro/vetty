@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/nombreMascotaTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Nombre"
+        android:textSize="18sp"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/especieMascotaTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Especie"
+        android:textSize="16sp"/>
+
+    <TextView
+        android:id="@+id/edadMascotaTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Edad"
+        android:textSize="16sp"/>
+
+    <TextView
+        android:id="@+id/razaMascotaTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Raza"
+        android:textSize="16sp"/>
+
+    <TextView
+        android:id="@+id/sexoMascotaTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Sexo"
+        android:textSize="16sp"/>
+
+
+
+
+    <Button
+        android:id="@+id/btnEditarMascota"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Editar" />
+
+    <Button
+        android:id="@+id/btnEliminarMascota"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Eliminar"
+        android:backgroundTint="@android:color/holo_red_light"
+        android:textColor="@android:color/white"/>
+
+</LinearLayout>
