@@ -69,18 +69,18 @@ public class LoginActivity extends AppCompatActivity {
                     if (documentSnapshot.exists()) {
                         Log.d("LoginActivity", "Usuario encontrado en Firestore: " + documentSnapshot.getData());
 
-                        // Extraer datos del documento
-                        String email = documentSnapshot.getString("correo");  // Asegúrate de que el campo en Firestore es 'correo'
+
+                        String email = documentSnapshot.getString("correo");
                         String nombre = documentSnapshot.getString("nombre");
                         String telefono = documentSnapshot.getString("telefono");
 
-                        // Guardar solo correo y estado de sesión en DataStore
+
                         userPreferences.updateUserEmail(email)
                                 .subscribe(success -> {}, throwable -> {});
                         userPreferences.setSessionActive(true)
                                 .subscribe(success -> {}, throwable -> {});
 
-                        // Ir a pantalla principal
+
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         startActivity(intent);
                         finish();

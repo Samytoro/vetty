@@ -33,15 +33,15 @@ public class PerfilActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_perfil);
 
-        // Primero inicializa tus preferencias
+
         userPreferences = new UserPreferences(this);
 
-        // Luego conecta tus TextViews
-        TextView nombreTextView = findViewById(R.id.nombreEditText); // ← Corrige este id si era distinto
+
+        TextView nombreTextView = findViewById(R.id.nombreEditText);
         TextView telefonoTextView = findViewById(R.id.telefonoEditText);
         TextView emailTextView = findViewById(R.id.correoEditText);
 
-        // Y ahora sí puedes usar userPreferences
+
         userPreferences.getUserName().subscribe(nombre -> {
             nombreTextView.setText(nombre);
         });
@@ -118,13 +118,13 @@ public class PerfilActivity extends AppCompatActivity {
                     .addOnFailureListener(e -> Toast.makeText(PerfilActivity.this, "Error al guardar", Toast.LENGTH_SHORT).show());
         }
 
-        // Guardar también en UserPreferences
+
         userPreferences.updateUserName(nombre)
                 .subscribe(success -> {}, error -> {});
         userPreferences.updateUserPhone(telefono)
                 .subscribe(success -> {}, error -> {});
 
-        // Determinar si el perfil está completo
+
         boolean perfilCompleto = !TextUtils.isEmpty(nombre) &&
                 (!TextUtils.isEmpty(correo) || !TextUtils.isEmpty(telefono));
 

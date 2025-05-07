@@ -17,17 +17,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Inicializar FirebaseAuth y UserPreferences
+
         auth = FirebaseAuth.getInstance();
         userPreferences = new UserPreferences(getApplicationContext());
 
         FirebaseUser usuarioActual = auth.getCurrentUser();
 
         if (usuarioActual == null) {
-            // Usuario no autenticado en Firebase
+
             redirigirALogin();
         } else {
-            // Usuario autenticado, verificar si la sesión sigue activa en DataStore
+
             userPreferences.isSessionActive().subscribe(isActive -> {
                 if (isActive) {
                     redirigirAPerfil();
@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
                     redirigirALogin();
                 }
             }, error -> {
-                // En caso de error leyendo DataStore, asumir sesión inactiva
+
                 redirigirALogin();
             });
         }

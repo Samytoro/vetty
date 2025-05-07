@@ -11,7 +11,7 @@ public class UserPreferences {
 
     private static final String DATASTORE_NAME = "user_prefs";
 
-    // Claves
+
     private static final Preferences.Key<String> KEY_USER_EMAIL = PreferencesKeys.stringKey("user_email");
     private static final Preferences.Key<String> KEY_USER_NAME = PreferencesKeys.stringKey("user_name");
     private static final Preferences.Key<String> KEY_USER_PHONE = PreferencesKeys.stringKey("user_phone");
@@ -26,7 +26,7 @@ public class UserPreferences {
         dataStore = new RxPreferenceDataStoreBuilder(context, DATASTORE_NAME).build();
     }
 
-    // === DATOS DE USUARIO ===
+
     public Flowable<String> getUserEmail() {
         return dataStore.data()
                 .map(prefs -> prefs.get(KEY_USER_EMAIL));
@@ -56,7 +56,6 @@ public class UserPreferences {
 
 
 
-    // === SESIÓN ===
     public Flowable<Boolean> isSessionActive() {
         return dataStore.data()
                 .map(prefs -> prefs.get(KEY_SESSION_ACTIVE) != null && prefs.get(KEY_SESSION_ACTIVE));
@@ -66,7 +65,7 @@ public class UserPreferences {
         return updateBoolean(KEY_SESSION_ACTIVE, isActive);
     }
 
-    // === ÚLTIMA MASCOTA CONSULTADA ===
+
     public Flowable<String> getLastMascotaId() {
         return dataStore.data()
                 .map(prefs -> prefs.get(KEY_LAST_MASCOTA_ID));
@@ -76,7 +75,7 @@ public class UserPreferences {
         return updateString(KEY_LAST_MASCOTA_ID, id);
     }
 
-    // === PERFIL COMPLETADO ===
+
     public Flowable<Boolean> isProfileCompleted() {
         return dataStore.data()
                 .map(prefs -> prefs.get(KEY_PROFILE_COMPLETED) != null && prefs.get(KEY_PROFILE_COMPLETED));
@@ -88,7 +87,7 @@ public class UserPreferences {
 
 
 
-    // === MÉTODOS GENÉRICOS ===
+
     private Single<Boolean> updateString(Preferences.Key<String> key, String value) {
         return dataStore.updateDataAsync(prefsIn -> {
             MutablePreferences mutable = prefsIn.toMutablePreferences();
