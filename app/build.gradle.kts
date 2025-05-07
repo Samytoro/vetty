@@ -42,6 +42,12 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.android.gms:play-services-auth:20.7.0")
     implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("androidx.datastore:datastore-preferences-rxjava2:1.1.0")
+    implementation ("androidx.datastore:datastore-preferences:1.0.0")
+    implementation ("androidx.datastore:datastore-core:1.0.0")
+    implementation ("io.reactivex.rxjava3:rxjava:3.1.5")
+    implementation ("androidx.datastore:datastore-rxjava3:1.0.0")
+
 
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.9.0")

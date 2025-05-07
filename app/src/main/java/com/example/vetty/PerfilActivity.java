@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
@@ -24,12 +25,34 @@ public class PerfilActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private FirebaseUser user;
 
+    private UserPreferences userPreferences;
+
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_perfil);
 
+        // Primero inicializa tus preferencias
+        userPreferences = new UserPreferences(this);
+
+        // Luego conecta tus TextViews
+        TextView nombreTextView = findViewById(R.id.nombreEditText); // ← Corrige este id si era distinto
+        TextView telefonoTextView = findViewById(R.id.telefonoEditText);
+        TextView emailTextView = findViewById(R.id.correoEditText);
+
+        // Y ahora sí puedes usar userPreferences
+        userPreferences.getUserName().subscribe(nombre -> {
+            nombreTextView.setText(nombre);
+        });
+
+        userPreferences.getUserPhone().subscribe(telefono -> {
+            telefonoTextView.setText(telefono);
+        });
+
+        userPreferences.getUserEmail().subscribe(email -> {
+            emailTextView.setText(email);
+        });
         nombreEditText = findViewById(R.id.nombreEditText);
         direccionEditText = findViewById(R.id.direccionEditText);
         telefonoEditText = findViewById(R.id.telefonoEditText);
@@ -38,6 +61,8 @@ public class PerfilActivity extends AppCompatActivity {
         saveProfileButton = findViewById(R.id.saveProfileButton);
         logoutButton = findViewById(R.id.logoutButton);
         mascotasButton = findViewById(R.id.mascotasButton);
+
+        userPreferences = new UserPreferences(this);
 
         db = FirebaseFirestore.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
@@ -92,6 +117,20 @@ public class PerfilActivity extends AppCompatActivity {
                     .addOnSuccessListener(aVoid -> Toast.makeText(PerfilActivity.this, "Perfil actualizado", Toast.LENGTH_SHORT).show())
                     .addOnFailureListener(e -> Toast.makeText(PerfilActivity.this, "Error al guardar", Toast.LENGTH_SHORT).show());
         }
+
+        // Guardar también en UserPreferences
+        userPreferences.updateUserName(nombre)
+                .subscribe(success -> {}, error -> {});
+        userPreferences.updateUserPhone(telefono)
+                .subscribe(success -> {}, error -> {});
+
+        // Determinar si el perfil está completo
+        boolean perfilCompleto = !TextUtils.isEmpty(nombre) &&
+                (!TextUtils.isEmpty(correo) || !TextUtils.isEmpty(telefono));
+
+        userPreferences.setProfileCompleted(perfilCompleto)
+                .subscribe(success -> {}, error -> {});
+
     }
 
     private void cerrarSesion() {
