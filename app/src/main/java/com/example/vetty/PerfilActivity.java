@@ -7,15 +7,23 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.vetty.controllers.TareaController;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FieldValue;
 import java.util.HashMap;
 import java.util.Map;
+import com.example.vetty.UserPreferencesManager;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+
+
 
 public class PerfilActivity extends AppCompatActivity {
 
@@ -24,8 +32,12 @@ public class PerfilActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private FirebaseFirestore db;
     private FirebaseUser user;
+    private EditText nuevaTareaEditText;
+    private Button btnAgregarTarea;
+    private RecyclerView recyclerViewTareas;
+    private TareaAdapter tareaAdapter;
+    private TareaController tareaController;
 
-    private UserPreferences userPreferences;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -33,26 +45,6 @@ public class PerfilActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_perfil);
 
-
-        userPreferences = new UserPreferences(this);
-
-
-        TextView nombreTextView = findViewById(R.id.nombreEditText);
-        TextView telefonoTextView = findViewById(R.id.telefonoEditText);
-        TextView emailTextView = findViewById(R.id.correoEditText);
-
-
-        userPreferences.getUserName().subscribe(nombre -> {
-            nombreTextView.setText(nombre);
-        });
-
-        userPreferences.getUserPhone().subscribe(telefono -> {
-            telefonoTextView.setText(telefono);
-        });
-
-        userPreferences.getUserEmail().subscribe(email -> {
-            emailTextView.setText(email);
-        });
         nombreEditText = findViewById(R.id.nombreEditText);
         direccionEditText = findViewById(R.id.direccionEditText);
         telefonoEditText = findViewById(R.id.telefonoEditText);
@@ -61,15 +53,69 @@ public class PerfilActivity extends AppCompatActivity {
         saveProfileButton = findViewById(R.id.saveProfileButton);
         logoutButton = findViewById(R.id.logoutButton);
         mascotasButton = findViewById(R.id.mascotasButton);
+        tareaController = new TareaController(getApplicationContext());
+        nuevaTareaEditText = findViewById(R.id.nuevaTareaEditText);
+        btnAgregarTarea   = findViewById(R.id.btnAgregarTarea);
+        recyclerViewTareas= findViewById(R.id.recyclerViewTareas);
 
-        userPreferences = new UserPreferences(this);
+        tareaAdapter = new TareaAdapter(tareaController);
+        recyclerViewTareas.setLayoutManager(new LinearLayoutManager(this));
+        recyclerViewTareas.setAdapter(tareaAdapter);
+
+        recyclerViewTareas.setNestedScrollingEnabled(false);
 
         db = FirebaseFirestore.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
 
         if (user != null) {
             cargarDatosUsuario();
+
+            tareaController.sincronizarTareasConFirestore()
+                    .andThen(tareaController.descargarTareasDesdeFirestore())
+                    .subscribe(() -> {
+                        runOnUiThread(() -> Toast.makeText(this, "Tareas sincronizadas con Firestore", Toast.LENGTH_SHORT).show());
+                    }, throwable -> {
+                        throwable.printStackTrace();
+                    });
+
+            tareaController.obtenerTareas()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(tareaAdapter::setData, Throwable::printStackTrace);
+
+            btnAgregarTarea.setOnClickListener(v -> {
+                String desc = nuevaTareaEditText.getText().toString().trim();
+                if(!desc.isEmpty()){
+                    tareaController.agregarTarea(desc)
+                            .andThen(tareaController.sincronizarTareasConFirestore())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(() -> nuevaTareaEditText.setText(""),
+                                    Throwable::printStackTrace);
+                }
+            });
+
+
         }
+
+        UserPreferencesManager prefs = UserPreferencesManager.getInstance(getApplicationContext());
+
+        prefs.getUserName()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(name -> {
+                    if (name != null) nombreEditText.setText(name);
+                }, error -> {
+                    error.printStackTrace();
+                });
+
+        prefs.getUserAddress()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(address -> {
+                    if (address != null) direccionEditText.setText(address);
+                }, error -> {
+                    error.printStackTrace();
+                });
+
 
         saveProfileButton.setOnClickListener(view -> guardarPerfil());
         logoutButton.setOnClickListener(view -> cerrarSesion());
@@ -117,20 +163,6 @@ public class PerfilActivity extends AppCompatActivity {
                     .addOnSuccessListener(aVoid -> Toast.makeText(PerfilActivity.this, "Perfil actualizado", Toast.LENGTH_SHORT).show())
                     .addOnFailureListener(e -> Toast.makeText(PerfilActivity.this, "Error al guardar", Toast.LENGTH_SHORT).show());
         }
-
-
-        userPreferences.updateUserName(nombre)
-                .subscribe(success -> {}, error -> {});
-        userPreferences.updateUserPhone(telefono)
-                .subscribe(success -> {}, error -> {});
-
-
-        boolean perfilCompleto = !TextUtils.isEmpty(nombre) &&
-                (!TextUtils.isEmpty(correo) || !TextUtils.isEmpty(telefono));
-
-        userPreferences.setProfileCompleted(perfilCompleto)
-                .subscribe(success -> {}, error -> {});
-
     }
 
     private void cerrarSesion() {

@@ -9,15 +9,22 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.vetty.controllers.TareaController;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+
+
+
+import com.example.vetty.UserPreferencesManager;
+
+
 public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private FirebaseFirestore db;
-
-    private UserPreferences userPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,9 +33,21 @@ public class LoginActivity extends AppCompatActivity {
 
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-        userPreferences = new UserPreferences(this);
 
         EditText emailEditText = findViewById(R.id.emailEditText);
+
+        UserPreferencesManager prefs = UserPreferencesManager.getInstance(getApplicationContext());
+        prefs.getUserEmail()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(email -> {
+                    if (email != null) {
+                        emailEditText.setText(email);
+                    }
+                }, error -> {
+                    Log.e("LoginActivity", "Error leyendo email guardado", error);
+                });
+
         EditText passwordEditText = findViewById(R.id.passwordEditText);
         Button loginButton = findViewById(R.id.loginButton);
         Button registerButton = findViewById(R.id.registerButton);
@@ -43,9 +62,18 @@ public class LoginActivity extends AppCompatActivity {
                             if (task.isSuccessful()) {
                                 FirebaseUser user = auth.getCurrentUser();
                                 if (user != null) {
+                                    String userEmail = user.getEmail();
+                                    if (userEmail != null) {
+                                        UserPreferencesManager userPrefs = UserPreferencesManager.getInstance(getApplicationContext());
+                                        userPrefs.saveUserEmail(userEmail);
+                                        Log.d("DEBUG_EMAIL", "Guardando email: " + userEmail);
+                                    }
+
                                     verificarUsuario(user.getUid());
                                 }
-                            } else {
+
+                            }
+                            else {
                                 Toast.makeText(LoginActivity.this, "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                             }
                         });
@@ -53,13 +81,12 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.makeText(LoginActivity.this, "Por favor llena todos los campos", Toast.LENGTH_SHORT).show();
             }
         });
-
         registerButton.setOnClickListener(view -> {
-            startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+            Log.d("DEBUG", "Botón de registro presionado");
+
+           startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
         });
     }
-
-
 
     private void verificarUsuario(String userId) {
         Log.d("LoginActivity", "Verificando usuario en Firestore: " + userId);
@@ -68,18 +95,6 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         Log.d("LoginActivity", "Usuario encontrado en Firestore: " + documentSnapshot.getData());
-
-
-                        String email = documentSnapshot.getString("correo");
-                        String nombre = documentSnapshot.getString("nombre");
-                        String telefono = documentSnapshot.getString("telefono");
-
-
-                        userPreferences.updateUserEmail(email)
-                                .subscribe(success -> {}, throwable -> {});
-                        userPreferences.setSessionActive(true)
-                                .subscribe(success -> {}, throwable -> {});
-
 
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         startActivity(intent);
@@ -94,43 +109,4 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(LoginActivity.this, "Error al obtener datos: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
-
-
-//    private void verificarUsuario(String userId) {
-//        Log.d("LoginActivity", "Verificando usuario en Firestore: " + userId);
-//
-//        db.collection("usuarios").document(userId).get()
-//                .addOnSuccessListener(documentSnapshot -> {
-//                    if (documentSnapshot.exists()) {
-//                        Log.d("LoginActivity", "Usuario encontrado en Firestore: " + documentSnapshot.getData());
-//
-//                        // Extraer datos del documento
-//                        String email = documentSnapshot.getString("email");
-//                        String nombre = documentSnapshot.getString("nombre");
-//
-//                        // Guardar en preferencias
-//                        userPreferences.updateUserEmail(email)
-//                                .subscribe(success -> {}, throwable -> {});
-//                        userPreferences.updateUserName(nombre)
-//                                .subscribe(success -> {}, throwable -> {});
-//                        userPreferences.setSessionActive(true)
-//                                .subscribe(success -> {}, throwable -> {});
-//
-//                        // Ir a pantalla principal
-//                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-//                        startActivity(intent);
-//                        finish();
-//                    } else {
-//                        Log.e("LoginActivity", "Usuario no encontrado en Firestore");
-//                        Toast.makeText(LoginActivity.this, "No se encontró el usuario en Firestore", Toast.LENGTH_SHORT).show();
-//                    }
-//                })
-//                .addOnFailureListener(e -> {
-//                    Log.e("LoginActivity", "Error al obtener datos de Firestore", e);
-//                    Toast.makeText(LoginActivity.this, "Error al obtener datos: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-//                });
-//    }
-
 }
-
-

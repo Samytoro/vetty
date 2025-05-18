@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
+        android:name=".VettyApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -27,6 +28,7 @@
         <activity android:name=".HomeActivity" />
         <activity android:name=".PerfilActivity" android:exported="true"/>
         <activity android:name=".MascotasActivity" />
+
 
 
     </application>
