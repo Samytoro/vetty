@@ -3,6 +3,8 @@ plugins {
     id("com.android.application")
     id("com.google.gms.google-services")
     alias(libs.plugins.kotlin.android)
+    id ("org.jetbrains.kotlin.kapt")
+
 }
 
 android {
@@ -43,11 +45,16 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:20.7.0")
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("androidx.datastore:datastore-preferences-rxjava2:1.1.0")
-    implementation ("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation ("androidx.datastore:datastore-core:1.0.0")
-    implementation ("io.reactivex.rxjava3:rxjava:3.1.5")
-    implementation ("androidx.datastore:datastore-rxjava3:1.0.0")
+    implementation ("com.google.guava:guava:31.1-android")
+    implementation ("io.reactivex.rxjava2:rxjava:2.2.21")
+    implementation ("io.reactivex.rxjava2:rxandroid:2.1.1")
 
+    implementation ("androidx.room:room-runtime:2.6.1")
+    annotationProcessor ("androidx.room:room-compiler:2.6.1")
+    implementation ("androidx.room:room-rxjava2:2.6.1")
+    kapt ("androidx.room:room-compiler:2.6.1")
 
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.9.0")

@@ -55,10 +55,8 @@ public class HomeActivity extends AppCompatActivity {
         vettyText.setTextColor(Color.BLACK);
         vettyText.setGravity(Gravity.CENTER);
 
-        // texto al layout
+
         layout.addView(vettyText);
-
-
 
     }
 }

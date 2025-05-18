@@ -28,8 +28,6 @@ public class MascotasActivity extends AppCompatActivity {
     private Button agregarMascotaButton, guardarMascotaEditadaButton;
     private RecyclerView mascotasRecyclerView;
     private MascotaAdapter mascotaAdapter;
-    private UserPreferences userPreferences;
-
     private FirebaseFirestore db;
     private FirebaseUser user;
     private List<Map<String, Object>> listaMascotas = new ArrayList<>();
@@ -39,8 +37,6 @@ public class MascotasActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mascotas);
-        userPreferences = new UserPreferences(this);
-
 
         especieEditText = findViewById(R.id.especieEditText);
         nombreMascotaEditText = findViewById(R.id.nombreMascotaEditText);
@@ -68,24 +64,7 @@ public class MascotasActivity extends AppCompatActivity {
                 sexoEditText.setText((String) mascota.get("sexo"));
                 mascotaSeleccionada = position;
                 guardarMascotaEditadaButton.setVisibility(View.VISIBLE);
-
-                // ⚠️ GUARDAR ÚLTIMA MASCOTA SELECCIONADA (usa el índice o un ID si tienes)
-                String idMascota = String.valueOf(position); // o mascota.get("id") si tienes uno único
-                userPreferences.updateLastMascotaId(idMascota)
-                        .subscribe(success -> {}, error -> {});
             }
-
-//            @Override
-//            public void onEditar(int position) {
-//                Map<String, Object> mascota = listaMascotas.get(position);
-//                especieEditText.setText((String) mascota.get("especie"));
-//                nombreMascotaEditText.setText((String) mascota.get("nombre"));
-//                edadEditText.setText((String) mascota.get("edad"));
-//                razaEditText.setText((String) mascota.get("raza"));
-//                sexoEditText.setText((String) mascota.get("sexo"));
-//                mascotaSeleccionada = position;
-//                guardarMascotaEditadaButton.setVisibility(View.VISIBLE);
-//            }
 
             @Override
             public void onEliminar(int position) {
